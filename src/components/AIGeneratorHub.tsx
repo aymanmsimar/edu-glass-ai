@@ -1,15 +1,14 @@
-
 import { motion } from 'framer-motion';
 import { FileText, BookOpen, Map, MessageCircle, Send, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { aiService, AIResponse } from '../services/aiService';
+import { backendService, BackendResponse } from '../services/backendService';
 import GeneratedContent from './GeneratedContent';
 
 const AIGeneratorHub = () => {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [chatMessage, setChatMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<AIResponse | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<BackendResponse | null>(null);
 
   const aiTools = [
     {
@@ -46,7 +45,10 @@ const AIGeneratorHub = () => {
     setGeneratedContent(null);
     
     try {
-      const response = await aiService.processUserAction(toolId, chatMessage);
+      const response = await backendService.sendToBackend({
+        action: toolId,
+        user_prompt: chatMessage
+      });
       setGeneratedContent(response);
       console.log(`Generated content for ${toolId}:`, response);
     } catch (error) {
@@ -62,8 +64,35 @@ const AIGeneratorHub = () => {
   };
 
   const handleSendMessage = async () => {
-    if (chatMessage.trim() && selectedTool) {
-      await handleGenerate(selectedTool);
+    if (!chatMessage.trim() || !selectedTool) {
+      console.log('Please enter a message and select a tool');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedContent(null);
+    
+    try {
+      const requestData = {
+        action: selectedTool,
+        user_prompt: chatMessage
+      };
+
+      console.log('Sending request to backend:', requestData);
+      
+      const response = await backendService.sendToBackend(requestData);
+      setGeneratedContent(response);
+      
+      console.log(`Generated content for ${selectedTool}:`, response);
+    } catch (error) {
+      console.error('Error generating content:', error);
+      setGeneratedContent({
+        type: 'markdown',
+        content: '',
+        error: 'Une erreur est survenue lors de la communication avec le backend.'
+      });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
