@@ -6,14 +6,13 @@ import CourseCard from '../components/CourseCard';
 import CourseModal from '../components/CourseModal';
 import AIGeneratorHub from '../components/AIGeneratorHub';
 import Dashboard from '../components/Dashboard';
-import SessionContent from '../components/SessionContent';
 import { useCourseStore, Course } from '../store/courseStore';
-import { Grid, List, BarChart3, Sparkles, BookOpen } from 'lucide-react';
+import { Grid, List, BarChart3, Sparkles } from 'lucide-react';
 
 const Index = () => {
   const { courses, selectedCourse, setSelectedCourse } = useCourseStore();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeTab, setActiveTab] = useState<'courses' | 'ai' | 'dashboard' | 'session'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'ai' | 'dashboard'>('courses');
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleCourseClick = (course: Course) => {
@@ -28,7 +27,6 @@ const Index = () => {
 
   const tabs = [
     { id: 'courses' as const, label: 'Courses', icon: Grid },
-    { id: 'session' as const, label: 'Séance 1', icon: BookOpen },
     { id: 'ai' as const, label: 'AI Generator', icon: Sparkles },
     { id: 'dashboard' as const, label: 'Dashboard', icon: BarChart3 }
   ];
@@ -119,7 +117,6 @@ const Index = () => {
           </div>
         )}
 
-        {activeTab === 'session' && <SessionContent />}
         {activeTab === 'ai' && <AIGeneratorHub />}
         {activeTab === 'dashboard' && <Dashboard />}
       </main>
